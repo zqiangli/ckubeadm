@@ -20,27 +20,28 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/ghodss/yaml"
 	"github.com/spf13/cobra"
 
-	apimachineryversion "k8s.io/apimachinery/pkg/version"
 	kubeadmutil "github.com/cherryleo/ckubeadm/app/util"
+	apimachineryversion "k8s.io/apimachinery/pkg/version"
 	cmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
 	"k8s.io/kubernetes/pkg/kubectl/util/i18n"
 	"k8s.io/kubernetes/pkg/version"
 )
 
-// Version provides the version information of kubeadm.
+// Version provides the version information of ckubeadm.
 type Version struct {
 	ClientVersion *apimachineryversion.Info `json:"clientVersion"`
 }
 
-// NewCmdVersion provides the version information of kubeadm.
+// NewCmdVersion provides the version information of ckubeadm.
 func NewCmdVersion(out io.Writer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "version",
-		Short: i18n.T("Print the version of kubeadm"),
+		Short: i18n.T("Print the version of ckubeadm"),
 		Run: func(cmd *cobra.Command, args []string) {
 			err := RunVersion(out, cmd)
 			kubeadmutil.CheckErr(err)
@@ -50,17 +51,20 @@ func NewCmdVersion(out io.Writer) *cobra.Command {
 	return cmd
 }
 
-// RunVersion provides the version information of kubeadm in format depending on arguments
+// RunVersion provides the version information of ckubeadm in format depending on arguments
 // specified in cobra.Command.
 func RunVersion(out io.Writer, cmd *cobra.Command) error {
 	clientVersion := version.Get()
 	v := Version{
 		ClientVersion: &clientVersion,
 	}
+	v.ClientVersion.BuildDate = fmt.Sprintf("%s", time.Now().Format(time.RFC3339))
+	v.ClientVersion.GitCommit = ""
+	v.ClientVersion.GitVersion = ""
 
 	switch of := cmdutil.GetFlagString(cmd, "output"); of {
 	case "":
-		fmt.Fprintf(out, "kubeadm version: %#v\n", v.ClientVersion)
+		fmt.Fprintf(out, "ckubeadm version: %#v\n", v.ClientVersion)
 	case "short":
 		fmt.Fprintf(out, "%s\n", v.ClientVersion.GitVersion)
 	case "yaml":
