@@ -80,7 +80,7 @@ var (
 		You can now join any number of machines by running the following on each node
 		as root:
 
-		  kubeadm join --token {{.Token}} {{.MasterHostPort}} --discovery-token-ca-cert-hash {{.CAPubKeyPin}}
+		  ckubeadm join --token {{.Token}} {{.MasterHostPort}} --discovery-token-ca-cert-hash {{.CAPubKeyPin}}
 
 		`)))
 

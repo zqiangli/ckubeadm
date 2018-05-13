@@ -22,9 +22,9 @@ import (
 	"github.com/renstrom/dedent"
 	"github.com/spf13/cobra"
 
-	"k8s.io/apiserver/pkg/util/flag"
 	"github.com/cherryleo/ckubeadm/app/cmd/phases"
 	"github.com/cherryleo/ckubeadm/app/cmd/upgrade"
+	"k8s.io/apiserver/pkg/util/flag"
 
 	// Register the kubeadm configuration types because CLI flag generation
 	// depends on the generated defaults.
@@ -34,19 +34,10 @@ import (
 // NewKubeadmCommand return cobra.Command to run kubeadm command
 func NewKubeadmCommand(_ io.Reader, out, err io.Writer) *cobra.Command {
 	cmds := &cobra.Command{
-		Use:   "kubeadm",
-		Short: "kubeadm: easily bootstrap a secure Kubernetes cluster",
+		Use:   "ckubeadm",
+		Short: "ckubeadm: easily bootstrap a secure Kubernetes cluster",
 		Long: dedent.Dedent(`
-			kubeadm: easily bootstrap a secure Kubernetes cluster.
-
-			    ┌──────────────────────────────────────────────────────────┐
-			    │ KUBEADM IS CURRENTLY IN BETA                             │
-			    │                                                          │
-			    │ But please, try it out and give us feedback at:          │
-			    │ https://github.com/kubernetes/kubeadm/issues             │
-			    │ and at-mention @kubernetes/sig-cluster-lifecycle-bugs    │
-			    │ or @kubernetes/sig-cluster-lifecycle-feature-requests    │
-			    └──────────────────────────────────────────────────────────┘
+			ckubeadm: easily bootstrap a secure Kubernetes cluster.
 
 			Example usage:
 
@@ -56,13 +47,13 @@ func NewKubeadmCommand(_ io.Reader, out, err io.Writer) *cobra.Command {
 			    ┌──────────────────────────────────────────────────────────┐
 			    │ On the first machine:                                    │
 			    ├──────────────────────────────────────────────────────────┤
-			    │ master# kubeadm init                                     │
+			    │ master# ckubeadm init                                     │
 			    └──────────────────────────────────────────────────────────┘
 
 			    ┌──────────────────────────────────────────────────────────┐
 			    │ On the second machine:                                   │
 			    ├──────────────────────────────────────────────────────────┤
-			    │ node# kubeadm join <arguments-returned-from-init>        │
+			    │ node# ckubeadm join <arguments-returned-from-init>        │
 			    └──────────────────────────────────────────────────────────┘
 
 			    You can then repeat the second step on as many other machines as you like.
