@@ -8,6 +8,8 @@ ckubeadm基于kubeadm-v1.9.1源码构建，k8s组件镜像托管于腾讯云镜�
 
 本文档详细介绍使用ckubaadm部署k8s完整步骤
 
+[k8s镜像及二进制文件下载地址](https://github.com/cherryleo/ckubeadm/blob/master/docs/镜像及二进制文件下载地址.md)
+
 
 
 ## 2.依赖
@@ -26,58 +28,16 @@ apt-get install ebtables ethtool iproute iptables socat util-linux
 
 
 
-#### 2.2 kubelet安装
+#### 2.2 安装kubelet，cni，kubectl
+
+[自动安装kubelet，cni，kubctl脚本](https://github.com/cherryleo/ckubeadm/blob/master/docs/组件安装脚本.md)
 
 ```shell
-# 下载kubelet
-wget https://fileserver-1253732882.cos.ap-chongqing.myqcloud.com/kubelet-1.9.1-amd64.tgz
+# 下载自动安装脚本
+wget https://raw.githubusercontent.com/cherryleo/ckubeadm/master/sh/ckubeadm_dependence.sh
 
-# 解压
-tar -zxvf kubelet-1.9.1-amd64.tgz -C /usr/bin/
-
-# 创建service
-cat << EOF > /etc/systemd/system/kubelet.service
-[Unit]
-Description=kubelet: The Kubernetes Node Agent
-Documentation=http://kubernetes.io/docs/
-
-[Service]
-ExecStart=/usr/bin/kubelet
-Restart=always
-StartLimitInterval=0
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-# 激活service
-systemctl enable kubelet.service
-```
-
-
-
-#### 2.3 kubernetes-cni安装
-
-```shell
-# 下载kubernetes-cni
-wget https://fileserver-1253732882.cos.ap-chongqing.myqcloud.com/cni-plugins-amd64-v0.6.0.tgz
-
-# 解压
-mkdir -p /opt/cni/bin
-tar -zxvf cni-plugins-amd64-v0.6.0.tgz -C /opt/cni/bin
-```
-
-
-
-#### 2.4 kubectl安装
-
-```shell
-# 下载kubectl
-wget https://fileserver-1253732882.cos.ap-chongqing.myqcloud.com/kubectl-1.9.1-amd64.tgz
-
-# 解压
-tar -zxvf kubectl-1.9.1-amd64.tgz -C /usr/local/bin/
+# 执行安装脚本
+sh ckubeadm_dependence.sh
 ```
 
 
@@ -113,7 +73,7 @@ systemctl daemon-reload
 
 
 
-#### 3.2 ckubeadm安装
+#### 3.2 安装ckubeadm
 
 ```shell
 # 下载ckubeadm
