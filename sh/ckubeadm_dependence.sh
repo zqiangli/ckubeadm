@@ -1,4 +1,5 @@
 # install ckubeadm dependence
+# kubernetes version
 KUBERNETES_VERSION="1.9.1"
 
 # install kubelet and create kubelet.service
@@ -46,7 +47,7 @@ function install_cin() {
 # master节点安装kubelet，kubectl，cni
 # node节点安装kubele，cni
 while true; do
-    read -p "Is this node is master node?" yn
+    read -p "Is this node master node?" yn
     case $yn in
         [Yy]* ) 
             install_kubelet;
