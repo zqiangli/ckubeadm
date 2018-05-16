@@ -6,9 +6,7 @@
 
 ckubeadm基于kubeadm-v1.9.1源码构建，k8s组件镜像托管于腾讯云镜像仓库，解决国内使用kubeadm拉取镜像速度慢或无法访问的问题
 
-本文档详细介绍使用ckubaadm部署k8s完整步骤
-
-[k8s镜像及二进制文件下载地址](https://github.com/cherryleo/ckubeadm/blob/master/docs/镜像及二进制文件下载地址.md)
+本文档详细介绍使用ckubaadm部署k8s集群完整步骤
 
 
 
@@ -16,7 +14,7 @@ ckubeadm基于kubeadm-v1.9.1源码构建，k8s组件镜像托管于腾讯云镜�
 
 #### 2.1 操作系统
 
-> Ubuntu 16.04+，CentOS 7，2核2G主机以上，安装以下软件
+Ubuntu 16.04+，CentOS 7+，master节点配置2核2G以上，安装以下软件包
 
 ```shell
 # CentOS
@@ -28,21 +26,33 @@ apt-get install ebtables ethtool iproute iptables socat util-linux
 
 
 
-#### 2.2 安装kubelet，cni，kubectl
+#### 2.2 运行环境
 
-[自动安装kubelet，cni，kubctl脚本](https://github.com/cherryleo/ckubeadm/blob/master/docs/组件安装脚本.md)
+安装docker，docker版本小于等于17
 
 ```shell
-# 下载自动安装脚本
-wget https://raw.githubusercontent.com/cherryleo/ckubeadm/master/sh/ckubeadm_dependence.sh
+# CentOS7安装docker-ce-17.03
+wget https://raw.githubusercontent.com/cherryleo/scripts/master/docker-centos7.sh
 
 # 执行安装脚本
-sh ckubeadm_dependence.sh
+sh docker-centos7.sh
 ```
 
 
 
-## 3. ckubeadm安装k8s
+#### 2.3 安装kubelet，cni，kubectl
+
+```shell
+# 下载自动安装脚本
+wget https://raw.githubusercontent.com/cherryleo/ckubeadm/master/sh/install-kubelet-kubectl-cni.sh
+
+# 执行安装脚本
+sh install-kubelet-kubectl-cni.sh
+```
+
+
+
+## 3. ckubeadm安装k8s集群
 
 #### 3.1 创建kubeadm配置文件
 
@@ -50,6 +60,9 @@ sh ckubeadm_dependence.sh
 # 创建kubeadm配置文件
 mkdir -p /etc/systemd/system/kubelet.service.d
 touch /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+
+# 查看docker cgroup driver
+docker info | grep -i cgroup
 
 # 复制下面内容到10-kubeadm.conf文件中，注意修改cgroup参数与docker一致，使用docker info查看docker cgroup dirver
 [Service]
@@ -94,18 +107,20 @@ swapoff -a
 # 关闭防火墙，如果不关防火墙，确保8080，6443，10250端口开放
 systemctl disable firewalld
 systemctl stop firewalld
+
+# 修改网络参数
+sysctl net.bridge.bridge-nf-call-iptables=1
 ```
 
 
 
-#### 3.4 安装k8s
+#### 3.4 安装k8s master节点
 
 ```shell
 # 基础组件安装
 ckubeadm init --pod-network-cidr=10.244.0.0/16
 
 # 网络插件安装，此处flannel网络
-sysctl net.bridge.bridge-nf-call-iptables=1
 kubectl apply -f https://raw.githubusercontent.com/cherryleo/ckubeadm/master/addons/flannel.yaml
 ```
 
@@ -114,18 +129,59 @@ kubectl apply -f https://raw.githubusercontent.com/cherryleo/ckubeadm/master/add
 #### 3.5 查看集群状态
 
 ```
-[root@centos7 ~]# kubectl get nodes
-NAME          STATUS    ROLES     AGE       VERSION
-k8s-centos7   Ready     master    5m        v1.9.1
+[root@10-255-0-196 ~]# kubectl get nodes
+NAME           STATUS    ROLES     AGE       VERSION
+10-255-0-196   Ready     master    47m       v1.9.1
 
-[root@centos7 ~]# kubectl get pods --all-namespaces
-NAMESPACE     NAME                                  READY     STATUS    RESTARTS   AGE
-kube-system   etcd-k8s-centos7                      1/1       Running   0          3m
-kube-system   kube-apiserver-k8s-centos7            1/1       Running   2          4m
-kube-system   kube-controller-manager-k8s-centos7   1/1       Running   0          4m
-kube-system   kube-dns-7f5d7475f6-5gqv9             3/3       Running   0          3m
-kube-system   kube-flannel-ds-h8927                 1/1       Running   0          3m
-kube-system   kube-proxy-k7znq                      1/1       Running   0          3m
-kube-system   kube-scheduler-k8s-centos7            1/1       Running   0          3m
+[root@10-255-0-196 ~]# kubectl get pods --all-namespaces
+NAMESPACE     NAME                                   READY     STATUS    RESTARTS   AGE
+kube-system   etcd-10-255-0-196                      1/1       Running   0          15m
+kube-system   kube-apiserver-10-255-0-196            1/1       Running   0          15m
+kube-system   kube-controller-manager-10-255-0-196   1/1       Running   0          15m
+kube-system   kube-dns-7f5d7475f6-chfqz              3/3       Running   0          15m
+kube-system   kube-flannel-ds-gjppn                  1/1       Running   0          10m
+kube-system   kube-proxy-bbt6k                       1/1       Running   0          15m
+kube-system   kube-scheduler-10-255-0-196            1/1       Running   0          15m
 ```
+
+
+
+#### 3.6 node节点安装
+
+```shell
+# 在node节点执行3.1-3.3步骤
+
+# 添加node节点到集群，集群token相关在master初始化成功后有显示
+ckubeadm join --token 0bcee8.d432bc378d7eb6a1 10.255.0.196:6443 --discovery-token-ca-cert-hash sha256:48e4ad18e026d2bc7d7c990d618bbbda2026727d4f5e9991ed87be424d5af5be
+```
+
+
+
+#### 3.7 查看集群状态
+
+```
+[root@10-255-0-196 ~]# kubectl get nodes
+NAME           STATUS    ROLES     AGE       VERSION
+10-255-0-196   Ready     master    47m       v1.9.1
+10-255-0-252   Ready     <none>    2m        v1.9.1
+
+[root@10-255-0-196 ~]# kubectl get pods --all-namespaces
+NAMESPACE     NAME                                   READY     STATUS    RESTARTS   AGE
+kube-system   etcd-10-255-0-196                      1/1       Running   0          47m
+kube-system   kube-apiserver-10-255-0-196            1/1       Running   0          46m
+kube-system   kube-controller-manager-10-255-0-196   1/1       Running   0          47m
+kube-system   kube-dns-7f5d7475f6-chfqz              3/3       Running   0          47m
+kube-system   kube-flannel-ds-gjppn                  1/1       Running   0          42m
+kube-system   kube-flannel-ds-qbxzg                  1/1       Running   2          2m
+kube-system   kube-proxy-bbt6k                       1/1       Running   0          47m
+kube-system   kube-proxy-j9pks                       1/1       Running   0          2m
+kube-system   kube-scheduler-10-255-0-196            1/1       Running   0          47m
+```
+
+
+
+## 4. 相关文档
+
+- [k8s镜像及二进制文件下载地址](https://github.com/cherryleo/ckubeadm/blob/master/docs/镜像及二进制文件下载地址.md)
+- [kubelet，cni，kubctl安装脚本简介](https://github.com/cherryleo/ckubeadm/blob/master/docs/组件安装脚本.md)
 
