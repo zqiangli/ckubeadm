@@ -120,6 +120,11 @@ sysctl net.bridge.bridge-nf-call-iptables=1
 # 基础组件安装
 ckubeadm init --pod-network-cidr=10.244.0.0/16
 
+# 安装成功后，创建kubectl配置文件
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
 # 网络插件安装，此处flannel网络
 kubectl apply -f https://raw.githubusercontent.com/cherryleo/ckubeadm/master/addons/flannel.yaml
 ```
