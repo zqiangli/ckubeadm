@@ -47,7 +47,7 @@ function install_cin() {
 # master节点安装kubelet，kubectl，cni
 # node节点安装kubele，cni
 while true; do
-    read -p "Is this node master node?" yn
+    read -p "Is this node master node? (y/n)" yn
     case $yn in
         [Yy]* ) 
             install_kubelet;
