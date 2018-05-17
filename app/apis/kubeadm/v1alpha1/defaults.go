@@ -40,7 +40,7 @@ const (
 	DefaultClusterDNSIP = "10.96.0.10"
 	// DefaultKubernetesVersion defines default kubernetes version
 	// DefaultKubernetesVersion = "stable-1.9"
-	DefaultKubernetesVersion = "v1.9.1"
+	DefaultKubernetesVersion = "v1.9.0"
 	// DefaultAPIBindPort defines default API port
 	DefaultAPIBindPort = 6443
 	// DefaultAuthorizationModes defines default authorization modes
