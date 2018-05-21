@@ -32,10 +32,8 @@ apt-get install ebtables ethtool iproute iptables socat util-linux
 
 ```shell
 # CentOS7安装docker-ce-17.03
-wget https://raw.githubusercontent.com/cherryleo/scripts/master/docker-centos7.sh
-
-# 执行安装脚本
-sh docker-centos7.sh
+wget https://raw.githubusercontent.com/cherryleo/scripts/master/centos7-install-docker.sh
+sh centos7-install-docker.sh
 ```
 
 
@@ -43,11 +41,11 @@ sh docker-centos7.sh
 #### 2.3 安装kubelet，cni，kubectl
 
 ```shell
-# 下载自动安装脚本
+# 下载安装脚本
 wget https://raw.githubusercontent.com/cherryleo/ckubeadm/master/sh/install-kubelet-kubectl-cni.sh
 
 # 执行安装脚本
-sh install-kubelet-kubectl-cni.sh
+
 ```
 
 
@@ -90,10 +88,10 @@ systemctl daemon-reload
 
 ```shell
 # 下载ckubeadm
-wget https://fileserver-1253732882.cos.ap-chongqing.myqcloud.com/ckubeadm-1.9.1.tgz
+wget https://fileserver-1253732882.cos.ap-chongqing.myqcloud.com/ckubeadm-1.9.tgz
 
 # 解压ckubeadm
-tar -zxvf ckubeadm-1.9.1.tgz -C /usr/local/bin
+tar -zxvf ckubeadm-1.9.tgz -C /usr/bin
 ```
 
 
