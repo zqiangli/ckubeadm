@@ -177,7 +177,7 @@ kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | gre
 
 
 
-#### 3.6 node节点安装
+#### 3.7 node节点安装
 
 ```shell
 # 在node节点执行3.1-3.3步骤
@@ -188,7 +188,7 @@ ckubeadm join --token 0bcee8.d432bc378d7eb6a1 10.255.0.196:6443 --discovery-toke
 
 
 
-#### 3.7 查看集群状态
+#### 3.8 查看集群状态
 
 ```
 [root@10-255-0-196 ~]# kubectl get nodes
