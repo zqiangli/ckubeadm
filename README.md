@@ -14,7 +14,7 @@ ckubeadm基于kubeadm-v1.9.1源码构建，k8s组件镜像托管于腾讯云镜�
 
 #### 2.1 操作系统
 
-Ubuntu 16.04+，CentOS 7+，master节点配置2核2G以上，安装以下软件包
+Ubuntu 16.04，CentOS 7+，master节点配置2核2G以上，安装以下软件包
 
 ```shell
 # CentOS
@@ -34,6 +34,10 @@ apt-get install ebtables ethtool iproute iptables socat util-linux
 # CentOS7安装docker-ce-17.03
 wget https://raw.githubusercontent.com/cherryleo/scripts/master/centos7-install-docker.sh
 sh centos7-install-docker.sh
+
+# Ubuntu16.04安装docker-ce-17.03
+wget https://raw.githubusercontent.com/cherryleo/scripts/master/ubuntu16.04-install-docker.sh
+sh ubuntu16.04-install-docker.sh
 ```
 
 
@@ -45,7 +49,7 @@ sh centos7-install-docker.sh
 wget https://raw.githubusercontent.com/cherryleo/ckubeadm/master/sh/install-kubelet-kubectl-cni.sh
 
 # 执行安装脚本，选择kubelet安装版本，当前节点是否为master节点
-[root@10-255-0-196]# sh install-kubelet-kubectl-cni.sh 
+[root@10-255-0-196]# bash install-kubelet-kubectl-cni.sh 
 1) 1.9.0
 2) 1.9.1
 3) 1.9.2
@@ -118,6 +122,9 @@ systemctl stop firewalld
 
 # 修改网络参数
 sysctl net.bridge.bridge-nf-call-iptables=1
+
+# Ubuntu16.04关闭kubelet service
+service kubelet stop
 ```
 
 
