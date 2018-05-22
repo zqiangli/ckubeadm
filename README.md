@@ -44,8 +44,19 @@ sh centos7-install-docker.sh
 # 下载安装脚本
 wget https://raw.githubusercontent.com/cherryleo/ckubeadm/master/sh/install-kubelet-kubectl-cni.sh
 
-# 执行安装脚本
-
+# 执行安装脚本，选择kubelet安装版本，当前节点是否为master节点
+[root@10-255-0-196]# sh install-kubelet-kubectl-cni.sh 
+1) 1.9.0
+2) 1.9.1
+3) 1.9.2
+4) 1.9.3
+5) 1.9.4
+6) 1.9.5
+7) 1.9.6
+8) 1.9.7
+Select kubernetes version: 1
+1.9.0
+Is this node master node? (y/n)y
 ```
 
 
@@ -89,7 +100,6 @@ systemctl daemon-reload
 ```shell
 # 下载ckubeadm
 wget https://fileserver-1253732882.cos.ap-chongqing.myqcloud.com/ckubeadm-1.9.tgz
-
 # 解压ckubeadm
 tar -zxvf ckubeadm-1.9.tgz -C /usr/bin
 ```
@@ -114,9 +124,11 @@ sysctl net.bridge.bridge-nf-call-iptables=1
 
 #### 3.4 安装k8s master节点
 
+ckubeadm安装默认使用`v1.9.0`版本，使用`--kubernetes-version=v1.9.x`指定版本，需要与**2.3**步骤版本一致
+
 ```shell
-# 基础组件安装
-ckubeadm init --pod-network-cidr=10.244.0.0/16
+# 基础组件安装，--kubernetes-version支持v1.9.0-7版本，默认v1.9.0版本
+ckubeadm init --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.9.0
 
 # 安装成功后，创建kubectl配置文件
 mkdir -p $HOME/.kube
@@ -125,6 +137,11 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 # 网络插件安装，此处flannel网络
 kubectl apply -f https://raw.githubusercontent.com/cherryleo/ckubeadm/master/addons/flannel.yaml
+
+# dashboard安装
+kubectl apply -f https://raw.githubusercontent.com/cherryleo/ckubeadm/master/addons/kubernetes-dashboard.yaml
+# 创建admin用户
+kubectl apply -f https://raw.githubusercontent.com/cherryleo/ckubeadm/master/addons/admin-user.yaml
 ```
 
 
@@ -134,7 +151,7 @@ kubectl apply -f https://raw.githubusercontent.com/cherryleo/ckubeadm/master/add
 ```
 [root@10-255-0-196 ~]# kubectl get nodes
 NAME           STATUS    ROLES     AGE       VERSION
-10-255-0-196   Ready     master    47m       v1.9.1
+10-255-0-196   Ready     master    47m       v1.9.0
 
 [root@10-255-0-196 ~]# kubectl get pods --all-namespaces
 NAMESPACE     NAME                                   READY     STATUS    RESTARTS   AGE
@@ -145,6 +162,17 @@ kube-system   kube-dns-7f5d7475f6-chfqz              3/3       Running   0      
 kube-system   kube-flannel-ds-gjppn                  1/1       Running   0          10m
 kube-system   kube-proxy-bbt6k                       1/1       Running   0          15m
 kube-system   kube-scheduler-10-255-0-196            1/1       Running   0          15m
+```
+
+
+
+#### 3.6 访问dashboard
+
+访问`http://ip:30080`查看**dashboard**页面，使用`token`进行登陆
+
+```shell
+# 获取token
+kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')
 ```
 
 
@@ -165,8 +193,8 @@ ckubeadm join --token 0bcee8.d432bc378d7eb6a1 10.255.0.196:6443 --discovery-toke
 ```
 [root@10-255-0-196 ~]# kubectl get nodes
 NAME           STATUS    ROLES     AGE       VERSION
-10-255-0-196   Ready     master    47m       v1.9.1
-10-255-0-252   Ready     <none>    2m        v1.9.1
+10-255-0-196   Ready     master    47m       v1.9.0
+10-255-0-252   Ready     <none>    2m        v1.9.0
 
 [root@10-255-0-196 ~]# kubectl get pods --all-namespaces
 NAMESPACE     NAME                                   READY     STATUS    RESTARTS   AGE
@@ -180,11 +208,3 @@ kube-system   kube-proxy-bbt6k                       1/1       Running   0      
 kube-system   kube-proxy-j9pks                       1/1       Running   0          2m
 kube-system   kube-scheduler-10-255-0-196            1/1       Running   0          47m
 ```
-
-
-
-## 4. 相关文档
-
-- [k8s镜像及二进制文件下载地址](https://github.com/cherryleo/ckubeadm/blob/master/docs/镜像及二进制文件下载地址.md)
-- [kubelet，cni，kubctl安装脚本简介](https://github.com/cherryleo/ckubeadm/blob/master/docs/组件安装脚本.md)
-
